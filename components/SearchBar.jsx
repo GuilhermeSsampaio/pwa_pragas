@@ -6,15 +6,12 @@ export const SearchBar = ({ setResults }) => {
   const [showNoResultsMessage, setShowNoResultsMessage] = useState(false);
 
   const fetchData = (value) => {
-    fetch("https://tecnofam-strapi.cpao.embrapa.br/api/capitulos")
+    fetch("https://api-cartilha-teste.onrender.com/api/pragas?populate=*")
       .then((response) => response.json())
       .then((data) => {
-        const results = data.data.filter((capitulo) => {
-          return (
-            value &&
-            capitulo.attributes &&
-            capitulo.attributes.title &&
-            capitulo.attributes.title.toLowerCase().includes(value.toLowerCase())
+        const results = data.data.filter((praga) => {
+          return praga.attributes.conteudo.some((conteudo) =>
+            conteudo.titulo_secao.toLowerCase().includes(value.toLowerCase())
           );
         });
         setResults(results);
@@ -36,7 +33,7 @@ export const SearchBar = ({ setResults }) => {
 
     const timeout = setTimeout(() => {
       fetchData(value.toLowerCase());
-    }, 200);
+    }, 50);
 
     setTypingTimeout(timeout);
   };

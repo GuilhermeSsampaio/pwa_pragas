@@ -89,7 +89,7 @@ const TextCapitulos = ({ lista, activeTitle, setActiveTitle }) => {
       }
     });
     return htmlContent;
-  }
+  } 
 
   function RefconvertToHTML(data) {
     let htmlContent = ''; // Variável para armazenar o conteúdo HTML
