@@ -87,8 +87,8 @@ export const Autores = () => {
                         <div className="offcanvas-body">
                             <ul className="navbar-nav justify-content-end flex-grow-1 center-itens">
                                 <li className="nav-item">
-                                    <Link className="nav-link back-item-link" href="/edicao-completa" aria-current="page">
-                                        Edição Completa
+                                    <Link className="nav-link back-item-link" href="/sumario" aria-current="page">
+                                        Sumário
                                     </Link>
                                 </li>
                                 <li className="nav-item">

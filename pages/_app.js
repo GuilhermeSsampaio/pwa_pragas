@@ -1,7 +1,7 @@
 // Importação dos CSS
 import '../styles/globals.css';
 import '../styles/custom.css';
-import '../styles/capitulos.css';
+import '../styles/sumario.css';
 
 // Impotação do Framework Bootstrap
 import 'bootstrap/dist/css/bootstrap.css';

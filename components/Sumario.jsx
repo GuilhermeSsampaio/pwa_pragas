@@ -4,11 +4,11 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import Logo from '../public/logo.svg'
-import TextCapitulos from './TextCapitulos'
+import TextCapitulos from './TextCapitulos.jsx'
 import { SearchBar } from "./SearchBar.jsx";
 import { SearchResultsList } from "./SearchResultsList.jsx";
 
-export const Capitulos = () => {
+export const Sumario = () => {
     //Importação das Imagens
     var LogoIF = require('../public/ifms-dr-marca-2015.png');
     var LogoEmbrapa = require('../public/logo-embrapa-400.png');
@@ -24,6 +24,7 @@ export const Capitulos = () => {
     const [data, setData] = useState([]);
     const [activeTitle, setActiveTitle] = useState(null);
     const [showSummary, setShowSummary] = useState(true);
+    const [expandedItems, setExpandedItems] = useState(['summary']);
 
     const handleTitleClick = (titleId) => {
         setActiveTitle(titleId);
@@ -48,6 +49,14 @@ export const Capitulos = () => {
 
     const handleCloseResults = () => {
         setResults([]); // Limpa os resultados
+    };
+
+    const toggleItem = (itemId) => {
+        if (expandedItems.includes(itemId)) {
+        setExpandedItems(expandedItems.filter((id) => id !== itemId));
+        } else {
+        setExpandedItems([...expandedItems, itemId]);
+        }
     };
 
     //Função para quando o usuário clicar no botão "← Voltar para o menu principal"
@@ -110,7 +119,7 @@ export const Capitulos = () => {
     const CarregaCapitulos = async () => {
         //const url = 'https://tecnofam-strapi.a.cnpgc.embrapa.br/api/capitulos?populate=*';
         // const url = 'https://api-cartilha-teste-production.up.railway.app/api/capitulos?populate=*'
-        const url = 'https://tecnofam-strapi.cpao.embrapa.br/api/capitulos?populate=*';
+        const url = 'https://api-cartilha-teste.onrender.com/api/pragas?populate=*';
 
         try {
             const response = await fetch(url);
@@ -118,7 +127,7 @@ export const Capitulos = () => {
                 const json = await response.json();
                 const data = json.data;
                 setData(data);
-                
+
                 if (asPath.includes('#capitulo_')) {
                     const chapterNumber = extractChapterNumberFromAnchor(asPath);
                     setActiveTitle(chapterNumber);
@@ -141,11 +150,30 @@ export const Capitulos = () => {
               setActiveTitle(data[0].id);
         
               // Use useRouter para navegar para o capítulo ativo
-              router.push(`/edicao-completa?activeChapter=${data[0].id}`, undefined, { shallow: true });
+              router.push(`/sumario?activeChapter=${data[0].id}`, undefined, { shallow: true });
             }
           }
         scrollToTop();
     }, [activeTitle, data, router]);
+
+    const handleSubitemContent = (e) => {
+        e.preventDefault();
+        
+        let index =+e.target.dataset.conteudoIndex;
+        let chapter = +e.target.dataset.chapterIndex;
+        loadContent(index, chapter);
+    }
+
+    const loadContent = (index, chapterIndex) =>{
+        // setActiveTitle(item.id);
+        // const targetId = `capitulo_${conteudoItem.id}`;
+        // const targetElement = document.getElementById(targetId);
+        // if (targetElement) {
+        //     targetElement.scrollIntoView({ behavior: 'smooth' });
+        // }
+        const content = data[chapterIndex].attributes.conteudo[index];
+        console.log(content);
+    }
 
     // Função para rolar a página para o topo
     const scrollToTop = () => {
@@ -162,7 +190,7 @@ export const Capitulos = () => {
         <>
             <Head>
                 <meta name="referrer" referrerPolicy="no-referrer" />
-                <title>TecnofamApp</title>
+                <title>Manual Pragas</title>
             </Head>
 
             {/* Div que Pega todo o Conteúdo da Página */}
@@ -184,40 +212,62 @@ export const Capitulos = () => {
                             {/* Botão para Retornar as Opções "Edição Completa e Autores" | Opção Disponível quando a Tela é Menor que 992px */}
                             <button type="button" className="clean-btn navbar-sidebar__back" id="back-button" onClick={() => setShowSummary(true)}>← Voltar para o menu principal</button>
                             {/* Dropdown do Sumário */}
-                            <div>
-                                <a 
-                                    className={`list-group-item list-group-item-action d-flex justify-content-between align-items-center ripple ${
-                                    isCollapsed ? 'collapsed' : ''
-                                    }`}
+                            {data.length > 0 ? (
+                                <div>
+                                    <a
+                                    className={`list-group-item list-group-item-action d-flex justify-content-between align-items-center ripple`}
                                     aria-current="true"
-                                    onClick={handleToggle}
-                                >
-                                    <span className="w-100 text-primary">Sumário</span>{' '}
-                                    <i className={`fas fa-chevron-${isCollapsed ? 'right' : 'down'} icon-deg`}></i>
-                                </a>
-                                {/* Conteúdo do Sidebar, dentro do Dropdown Sumário */}
-                                {data.length > 0 ? (
-                                data.map((item) => (
-                                    <ul key={item.id} id="collapseExample1"
-                                        className={`list-group list-group-flush mx-2 py-1 ${isCollapsed ? 'collapse' : 'show'}`}
+                                    onClick={() => toggleItem('summary')}
                                     >
-                                        <li className={`list-group-item py-2 ${activeTitle === item.id ? 'active' : ''}`}
-                                            onClick={() => { handleTitleClick(item.id); setIsOffcanvasOpen(false);}}
-                                            style={{cursor: 'pointer'}}
+                                    <span className="w-100 text-primary">Sumário</span>
+                                    <i className={`fas fa-chevron-${expandedItems.includes('summary') ? 'down' : 'right'} icon-deg`}></i>
+                                    </a>
+                                    <div id="summary-content" className={`list-group list-group-flush mx-2 py-1 ${expandedItems.includes('summary') ? 'show' : 'collapse'}`}>
+                                    {data.map((item, chapterIndex) => (
+                                        <div key={item.id}>
+                                        <a
+                                            className={`list-group-item py-2 ${expandedItems.includes(item.id) ? 'active' : ''}`}
+                                            onClick={() => toggleItem(item.id)}
+                                            style={{
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
+                                            }}
                                         >
-                                            <a 
-                                                href={`#capitulo_${item.id}`} 
-                                                className={activeTitle === item.id ? 'active-link-summary' : ''}
-                                            >
-                                                {item.attributes.title}
-                                            </a>
-                                        </li>
-                                    </ul>
-                                ))
+                                            {item.attributes.title}
+                                            {' '}
+                                            <i className={`fas fa-chevron-${expandedItems.includes(item.id) ? 'down' : 'right'} icon-deg`} style={{ fontSize: '15px' }}></i>
+                                        </a>
+                                        {expandedItems.includes(item.id) && (
+                                            <ul className="list-group list-group-flush mx-2 py-1">
+                                            {item.attributes.conteudo.map((conteudoItem, index) => (
+                                                <li
+                                                key={conteudoItem.id}
+                                                className={`list-group-item py-2 ${activeTitle === item.id ? 'active' : ''}`}
+                                                onClick={() => { handleTitleClick(item.id); setIsOffcanvasOpen(false); }}
+                                                style={{ cursor: 'pointer' }}
+                                                >
+                                                <a
+                                                    data-conteudo-index={index}
+                                                    data-chapter-index={chapterIndex}
+                                                    href={`#capitulo_${conteudoItem.id}`}
+                                                    className={activeTitle === item.id ? 'active-link-summary' : ''}
+                                                    onClick={handleSubitemContent}
+                                                >
+                                                    {conteudoItem.titulo_secao}
+                                                </a>
+                                                </li>
+                                            ))}
+                                            </ul>
+                                        )}
+                                        </div>
+                                    ))}
+                                    </div>
+                                </div>
                                 ) : (
-                                    <p className='d-flex justify-content-center' style={{marginTop: 20}}>Carregando dados...</p>
+                                <p className='d-flex justify-content-center' style={{ marginTop: 20 }}>Carregando dados...</p>
                                 )}
-                            </div>
                         </div>
                     </div>
                     {/* Opções Retornadas quando o Usuário Aperta no Botão "← Voltar para o menu principal" */}
@@ -232,8 +282,8 @@ export const Capitulos = () => {
                         <button type="button" className="clean-btn navbar-sidebar__back" id="back-button" onClick={toggleSummaryAndMainMenu}>← Voltar para o Sumário</button>
                         <ul className="navbar-nav ms-auto d-flex itens-menu-cap">
                             <li className="nav-item mx-3">
-                                <Link className="nav-link back-item-link py-2" href="/edicao-completa" aria-current="page">
-                                    <span className="link-text">Edição Completa</span>
+                                <Link className="nav-link back-item-link py-2" href="/sumario" aria-current="page">
+                                    <span className="link-text">Sumário</span>
                                 </Link> 
                             </li>
                             <li className="nav-item mx-3">
@@ -259,8 +309,8 @@ export const Capitulos = () => {
                         {/* Código dos Itens Exibidos no Navbar */}
                         <ul className="navbar-nav ms-auto d-flex flex-row">
                             <li className="nav-item text-item-link">
-                                <Link className="nav-link back-item-link" href="/edicao-completa" aria-current="page">
-                                    <span className="link-text">Edição Completa</span>
+                                <Link className="nav-link back-item-link" href="/sumario" aria-current="page">
+                                    <span className="link-text">Sumário</span>
                                 </Link> 
                             </li>
                             <li className="nav-item text-item-link">
@@ -299,7 +349,7 @@ export const Capitulos = () => {
                     {isOffcanvasOpen && <div className="offcanvas-backdrop show" onClick={handleToggleBackDrop}></div>}
                 </nav>
                 
-                {/* Conteúdo da Cartilha */}
+                {/* Conteúdo do Manual */}
                 <main className='docMainContainer_gTbr'>
                     <div className='container padding-bottom--lg'>
                         <div className='col'>
