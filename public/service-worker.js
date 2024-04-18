@@ -1,6 +1,19 @@
 // service-worker.js
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/6.2.0/workbox-sw.js');
 
+// Check if the user is offline
+if (!navigator.onLine) {
+  // Show a notification using react-toastify
+  toast.error('You are offline. Please check your internet connection.', {
+    position: toast.POSITION.TOP_RIGHT,
+    autoClose: 5000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+  });
+}
 // Rota para a API de capítulos
 workbox.routing.registerRoute(
   // new RegExp('https://api-cartilha-teste-production.up.railway.app/api/capitulos?populate=*'),
