@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import Head from 'next/head'
 import Image from 'next/image'
 import Link from 'next/link'
-import Logo from '../public/logo.svg'
+import Logo from '../public/logo.png'
 import { SearchBar } from "./SearchBar.jsx";
 import { SearchResultsList } from "./SearchResultsList.jsx";
 
@@ -59,7 +59,7 @@ export const Autores = () => {
                         </button>
                         {/* Logo Navbar */}
                         <Link className="navbar-brand" href="/home">
-                            <Image src={Logo} width={350} height={54} alt="logo Embrapa com letras em azul com um simbolo verde, sendo que as letras em cima do simbolo são brancas" />
+                            <Image src={Logo} width="100%" height={40} alt="logo Embrapa com letras em azul com um simbolo verde, sendo que as letras em cima do simbolo são brancas" />
                         </Link>
                     </div>
                     {/* Input Search para tela menor que 992px */}

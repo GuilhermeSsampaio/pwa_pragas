@@ -9,10 +9,13 @@ export const SearchBar = ({ setResults }) => {
     fetch("https://api-cartilha-teste.onrender.com/api/pragas?populate=*")
       .then((response) => response.json())
       .then((data) => {
-        const results = data.data.filter((praga) => {
-          return praga.attributes.conteudo.some((conteudo) =>
-            conteudo.titulo_secao.toLowerCase().includes(value.toLowerCase())
-          );
+        const results = [];
+        data.data.forEach((praga) => {
+          praga.attributes.conteudo.forEach((item) => {
+            if (item.titulo_secao.toLowerCase().includes(value.toLowerCase())) {
+              results.push(praga);
+            }
+          });
         });
         setResults(results);
         setShowNoResultsMessage(results.length === 0 && value.trim() !== ""); 
@@ -22,18 +25,17 @@ export const SearchBar = ({ setResults }) => {
         setResults([]);
         setShowNoResultsMessage(true);
       });
-  };
+  };  
 
   const handleChange = (value) => {
     setInput(value);
-
     if (typingTimeout) {
       clearTimeout(typingTimeout);
     }
 
     const timeout = setTimeout(() => {
       fetchData(value.toLowerCase());
-    }, 50);
+    }, 200);
 
     setTypingTimeout(timeout);
   };
