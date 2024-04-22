@@ -8,12 +8,6 @@ import InstallButtonIos from './InstallButtonIos'
 import { SearchBar } from "./SearchBar.jsx";
 import { SearchResultsList } from "./SearchResultsList.jsx";
 import { isAndroid, isIOS, isDesktop } from 'react-device-detect'
-import Notification  from './Notification.jsx'
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-
-
-
 export const HomePage = () => {
     //Importação das Imagens
     var LogoIF = require('../public/ifms-dr-marca-2015.png');
@@ -21,8 +15,6 @@ export const HomePage = () => {
     var LogoIFEmbrapa = require('../public/logo-if-embrapa.png');
     var LogoCartilha = require('../public/logo-cartilha.svg');   
     var Adeney = require('../public/adeney.jpg');   
-    const notify = () => toast("Wow so easy!");
-
     const [results, setResults] = useState([]);
     
     const handleCloseResults = () => {
@@ -35,7 +27,6 @@ export const HomePage = () => {
                 <meta name="referrer" referrerPolicy="no-referrer" />
                 <title>Manual Pragas</title>
             </Head>
-            <Notification/>
             {/* Código Navbar Offcanvas */}
             <nav className="navbar navbar-expand-lg navbar-light bg-white fixed-top" aria-label="Offcanvas navbar large">
                 <div className="container-fluid">
@@ -82,11 +73,6 @@ export const HomePage = () => {
                                     <Link className="nav-link back-item-link" href="/autores" aria-current="page">
                                         <span className="link-text">Autores</span>
                                     </Link>
-                                </li>
-                                <li>
-                                    {/* <Notification/> */}
-                                    <button onClick={notify}>Notify!</button>
-        <ToastContainer />
                                 </li>
                             </ul>
                             {/* Input Search para tela maior que 992px */}

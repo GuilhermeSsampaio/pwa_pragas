@@ -10,6 +10,7 @@ import 'mdb-ui-kit/css/mdb.min.css';
 import { useEffect } from 'react';
 import { init } from "@socialgouv/matomo-next";
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import Notification from '../components/Notification';
 import dotenv from 'dotenv';
 
 
@@ -35,7 +36,12 @@ function MyApp({ Component, pageProps }) {
     }
   }, []);
 
-  return <Component {...pageProps} />;
+  return (
+    <>
+      <Component {...pageProps} />
+      <Notification/>
+    </>
+  )
 }
 
 export default MyApp;
