@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import TableOfContents from './TableOfContents';
 let i = 0;
-const TextCapitulos = ({ lista, activeTitle, setActiveTitle }) => {
+const TextCapitulos = ({ lista, activeTitle, setActiveTitle, contentId }) => {
   const [headerBlocks, setHeaderBlocks] = useState([]);
 
   useEffect(() => {
@@ -10,8 +10,7 @@ const TextCapitulos = ({ lista, activeTitle, setActiveTitle }) => {
     lista.forEach((cap) => {
       const blocks = cap.attributes.conteudo.map((item) => {
         return JSON.parse(item.texto_conteudo).blocks;
-      }).flat();
-      
+      }).flat();      
       blocks.forEach((block) => {
         if (block.type === 'header') {
           extractedHeaderBlocks.push(block);
@@ -140,16 +139,20 @@ const TextCapitulos = ({ lista, activeTitle, setActiveTitle }) => {
       <div className="text-with-toc">
         <div className="text-content">
         {lista.map((cap) => (
-          <article key={cap.id} className="article">
+            <article key={cap.id} className="article">
             {activeTitle === cap.id && (
               <>
                 <h1>{cap.attributes.title}</h1>
-                {cap.attributes.conteudo.map((item) => (
-                  <div key={item.id} className="bd-content ps-lg-2">
-                    <div className='center-textArticle'>{item.titulo_secao}</div>
-                    <div dangerouslySetInnerHTML={{ __html: convertToHTML(JSON.parse(item.texto_conteudo)) }} />
+                <div className='center-textArticle font-italic'>{cap.attributes.subtitle}</div>
+      
+                
+                {cap.attributes.conteudo.find(item => item.id === contentId) && ( // Verifica se o conteúdo com o contentId existe
+                  <div className="bd-content ps-lg-2">
+                    {/* <div>{cap.attributes.conteudo.find(item => item.id === contentId).id}</div> */}
+                    <div className='center-textArticle' style={{ fontStyle: 'italic' }}>{cap.attributes.conteudo.find(item => item.id === contentId).titulo_secao}</div>
+                    <div dangerouslySetInnerHTML={{ __html: convertToHTML(JSON.parse(cap.attributes.conteudo.find(item => item.id === contentId).texto_conteudo)) }} />
                   </div>
-                ))}
+                )}
               </>
             )}
           </article>

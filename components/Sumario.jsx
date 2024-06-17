@@ -25,6 +25,8 @@ export const Sumario = () => {
     const [activeTitle, setActiveTitle] = useState(null);
     const [showSummary, setShowSummary] = useState(true);
     const [expandedItems, setExpandedItems] = useState(['summary']);
+    const [clickedSectionId, setClickedSectionId] = useState(null);
+
 
     const handleTitleClick = (titleId) => {
         setActiveTitle(titleId);
@@ -75,6 +77,7 @@ export const Sumario = () => {
         const sidebarMenu = document.getElementById("sidebarMenu");
         if (sidebarMenu) {
           sidebarMenu.classList.remove("show");
+          console.log("chamou closeSidebar");
         }
         setIsOffcanvasOpen(false);
     }
@@ -164,16 +167,22 @@ export const Sumario = () => {
         loadContent(index, chapter);
     }
 
-    const loadContent = (index, chapterIndex) =>{
-        // setActiveTitle(item.id);
-        // const targetId = `capitulo_${conteudoItem.id}`;
-        // const targetElement = document.getElementById(targetId);
-        // if (targetElement) {
-        //     targetElement.scrollIntoView({ behavior: 'smooth' });
-        // }
+    // const loadContent = (index, chapterIndex) =>{
+    //     // setActiveTitle(item.id);
+    //     // const targetId = `capitulo_${conteudoItem.id}`;
+    //     // const targetElement = document.getElementById(targetId);
+    //     // if (targetElement) {
+    //     //     targetElement.scrollIntoView({ behavior: 'smooth' });
+    //     // }
+    //     const content = data[chapterIndex].attributes.conteudo[index];
+    //     // console.log(content);
+    // }
+
+    const loadContent = (index, chapterIndex) => {
+        setClickedSectionId(0);
         const content = data[chapterIndex].attributes.conteudo[index];
-        console.log(content);
-    }
+        setClickedSectionId(content.id);
+      };
 
     // Função para rolar a página para o topo
     const scrollToTop = () => {
@@ -183,7 +192,21 @@ export const Sumario = () => {
         });
     };
 
+    const handleSubchapterClick = (e, chapterId, subchapterId) => {
+        e.preventDefault();
+        setActiveSubchapter(subchapterId);
+        expandedItems.includes(chapterId) || toggleItem(chapterId);
+        handleTitleClick(chapterId);
+        handleSubitemContent(e, subchapterId);
+        scrollToTop();
+      };
+    const handleChapterClick = (itemId) => {
+        toggleItem(itemId);
+        scrollToTop();
+      };
     const activeChapter = data.find(item => item.id === activeTitle);
+    const [activeSubchapter, setActiveSubchapter] = useState(null);
+
     const displayedTitle = activeChapter ? activeChapter.attributes.title : 'Título do Capítulo';
 
     return(
@@ -224,45 +247,47 @@ export const Sumario = () => {
                                     </a>
                                     <div id="summary-content" className={`list-group list-group-flush mx-2 py-1 ${expandedItems.includes('summary') ? 'show' : 'collapse'}`}>
                                     {data.map((item, chapterIndex) => (
-                                        <div key={item.id}>
-                                        <a
-                                            className={`list-group-item py-2 ${expandedItems.includes(item.id) ? 'active' : ''}`}
-                                            onClick={() => toggleItem(item.id)}
-                                            style={{
-                                            cursor: 'pointer',
-                                            display: 'flex',
-                                            justifyContent: 'space-between',
-                                            alignItems: 'center',
-                                            }}
-                                        >
-                                            {item.attributes.title}
-                                            {' '}
-                                            <i className={`fas fa-chevron-${expandedItems.includes(item.id) ? 'down' : 'right'} icon-deg`} style={{ fontSize: '15px' }}></i>
-                                        </a>
-                                        {expandedItems.includes(item.id) && (
-                                            <ul className="list-group list-group-flush mx-2 py-1">
-                                            {item.attributes.conteudo.map((conteudoItem, index) => (
-                                                <li
-                                                key={conteudoItem.id}
-                                                className={`list-group-item py-2 ${activeTitle === item.id ? 'active' : ''}`}
-                                                onClick={() => { handleTitleClick(item.id); setIsOffcanvasOpen(false); }}
-                                                style={{ cursor: 'pointer' }}
-                                                >
-                                                <a
-                                                    data-conteudo-index={index}
-                                                    data-chapter-index={chapterIndex}
-                                                    href={`#capitulo_${conteudoItem.id}`}
-                                                    className={activeTitle === item.id ? 'active-link-summary' : ''}
-                                                    onClick={handleSubitemContent}
-                                                >
-                                                    {conteudoItem.titulo_secao}
-                                                </a>
-                                                </li>
-                                            ))}
-                                            </ul>
-                                        )}
-                                        </div>
-                                    ))}
+        <div key={item.id}>
+          <a
+            className={`list-group-item list-group-item-action py-2 ${expandedItems.includes(item.id) ? 'active' : ''}`}
+            onClick={() => handleChapterClick(item.id)}
+            style={{ cursor: 'pointer' }}
+          >
+            <div className="d-flex justify-content-between align-items-center">
+              <div>
+                <h6 className="mb-0">{item.attributes.title}</h6>
+                {item.attributes.subtitle && (
+                  <span className="subtitle font-size-lg">{item.attributes.subtitle}</span>
+                )}
+              </div>
+              <i className={`fas fa-chevron-${expandedItems.includes(item.id) ? 'down' : 'right'} ml-2`} style={{ fontSize: '15px' }}></i>
+            </div>
+          </a>
+
+          {expandedItems.includes(item.id) && (
+            <ul className="list-group list-group-flush mx-2 py-1">
+              {item.attributes.conteudo.map((conteudoItem, index) => (
+                <li
+                  key={conteudoItem.id}
+                  className={`list-group-item py-2 ${activeSubchapter === conteudoItem.id ? 'active' : ''}`}
+                  onClick={() => { handleTitleClick(item.id); setIsOffcanvasOpen(false); }}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <a
+                    data-conteudo-index={index}
+                    data-chapter-index={chapterIndex}
+                    href={`#capitulo_${conteudoItem.id}`}
+                    className={activeSubchapter === conteudoItem.id ? 'active-link-summary' : ''}
+                    onClick={(e) => handleSubchapterClick(e, item.id, conteudoItem.id)}
+                  >
+                    {conteudoItem.titulo_secao}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      ))}
                                     </div>
                                 </div>
                                 ) : (
@@ -378,7 +403,7 @@ export const Sumario = () => {
                             <section className="home-section right-sidebar" style={{marginTop: 30}}>
                                 {/* Código dos Textos da Cartilha */}
                                 <div id="contents" className="bd-content ps-lg-2">
-                                    <TextCapitulos lista = {data} activeTitle={activeTitle} setActiveTitle={setActiveTitle} />
+                                    <TextCapitulos lista = {data} activeTitle={activeTitle} setActiveTitle={setActiveTitle} contentId={clickedSectionId}/>
                                 </div>
                             </section>
                         </div>
